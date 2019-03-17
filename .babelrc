@@ -1,0 +1,11 @@
+{
+  "compact": true,
+  "minified": true,
+  "sourceMap": true,
+  "comments": false,
+  "presets": [
+    ["@babel/preset-env", { "useBuiltIns": "entry" }],
+    "@babel/preset-flow"
+  ],
+  "plugins": ["@babel/plugin-syntax-flow"]
+}
