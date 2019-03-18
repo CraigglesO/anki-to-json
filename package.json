@@ -1,6 +1,6 @@
 {
-  "name": "@polkajs/skeleton-module",
-  "version": "1.0.4",
+  "name": "@iftt/skeleton-module",
+  "version": "1.0.0",
   "description": "When creating new NodeJS modules, use this skeletal structure",
   "main": "lib/index.js",
   "scripts": {
