@@ -7,14 +7,14 @@ import uuidv4       from 'uuid/v4';
 import { address }  from './ip';
 
 const debug = require('debug')('SSDP');
-const db    = new Datastore({ filename: './ssdp.db', autoload: true });
+const db    = new NeDB({ filename: './ssdp.db', autoload: true });
 
 // UPnP STANDARD VARIABLES
 const SSDP_ADDRESS    = '239.255.255.250';
 const SSDP_PORT       = 1900;
 const SSDP_HOST       = SSDP_ADDRESS + ':' + SSDP_PORT;
 const TTL             = 2;
-const MX              = 2;
+const MX              = 1;
 const ALIVE_INTERVAL  = 1800 * 1000; // 30 minutes
 const MAX_AGE         = 'max-age=1800';
 const SERVER          = os.type() + '/' + os.release() + ' UPnP/1.1 kami/1.0.0';
@@ -52,21 +52,24 @@ export type Peer = {
 };
 
 class SSDP extends EventEmitter {
-  udpSocket:        dgram;
+  unicastUdp:       dgram;
+  multicastUdp:     dgram;
   discoveryHandler: SetInterval;
   UUID:             string;
-  BOOT_ID:          number; // CONFIG_ID:  0 to 16777215
+  BOOT_ID:          number; // BOOT_ID & CONFIG_ID:  0 to 16777215
   extraHeaders:     Headers;
   constructor(options: Options) {
     super();
     debug('instantiating SSDP module');
-    self.BOOT_ID = 0;
-    self.extraHeaders = options.extraHeaders;
-    self.getPersistantData(); // grab all necessary variables and then it will call 'createSocket'
-    self.setDiscoveryInterval();
+    if (!options) options = {};
+    this.BOOT_ID = 0;
+    this.extraHeaders = options.extraHeaders || {};
+    this.getPersistantData(); // grab all necessary variables and then it will call 'createSockets'
+    this.setDiscoveryInterval();
   }
 
   getPersistantData() {
+    debug('getting persistant data');
     const self = this;
     db.findOne({ key: 'UUID' }, (err, doc) => {
       if (!err && doc)
@@ -75,35 +78,41 @@ class SSDP extends EventEmitter {
         self.UUID = uuidv4();
         db.insert({ key: 'UUID', UUID: self.UUID });
       }
-      self.createSocket();
+      self.createSockets();
     });
   }
 
   setDiscoveryInterval() {
     const self = this;
-    discoveryHandler = SetInterval(() => {
-      self.emit('DISCOVER');
+    self.discoveryHandler = setInterval(() => {
+      self.emit('discover');
     }, Math.floor(ALIVE_INTERVAL * 3 / 4));
   }
 
-  createSocket() {
+  createSockets() {
     debug('creating udp socket');
     const self = this;
 
-    self.udpSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-    self.udpSocket.on('message', self._onMessage);
-    self.udpSocket.on('listening', self._onListening);
-    self.udpSocket.on('error', self._onError);
-    self.udpSocket.on('close', self._onClose);
-    self.udpSocket.bind(SSDP_PORT, LOCAL_IP, () => {
-      self.udpSocket.setMulticastTTL(TTL);
-      self.udpSocket.setBroadcast(true);
-      self.udpSocket.addMembership(SSDP_ADDRESS, LOCAL_IP);
-      self.udpSocket.setMulticastLoopback(true);
+    self.unicastUdp = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+    self.unicastUdp.on('message', self._onMessage.bind(self));
+    self.unicastUdp.on('error', self._onError.bind(self));
+    self.unicastUdp.on('close', self._onClose.bind(self));
+    self.unicastUdp.bind(Math.floor(Math.random() * (65535 - 49152) + 49152), LOCAL_IP, () => {
+      self.multicastUdp = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+      self.multicastUdp.on('message', self._onMessage.bind(self));
+      self.multicastUdp.on('listening', self._onListening.bind(self));
+      self.multicastUdp.on('error', self._onError.bind(self));
+      self.multicastUdp.on('close', self._onClose.bind(self));
+      self.multicastUdp.bind(SSDP_PORT, () => {
+        self.multicastUdp.setMulticastTTL(TTL);
+        self.multicastUdp.setBroadcast(true);
+        self.multicastUdp.addMembership(SSDP_ADDRESS, LOCAL_IP);
+        self.multicastUdp.setMulticastLoopback(true);
+      });
     });
   }
 
-  notify(headers: Headers, callback: Function) {
+  notify(headers: Headers, callback: Function) { // requires more thurough USN & LOCATION
     debug('notify');
     headers.HOST   = headers.HOST || SSDP_HOST;
     headers.EXT    = headers.EXT || '';
@@ -115,7 +124,7 @@ class SSDP extends EventEmitter {
       headers[key] = this.extraHeaders[key];
 
     let msg = new Buffer(this._serialize(NOTIFY, headers));
-    this.udpSocket.send(msg, 0, SSDP_PORT, SSDP_ADDRESS, callback);
+    this.multicastUdp.send(msg, 0, SSDP_PORT, SSDP_ADDRESS, callback);
   }
 
   alive(headers: Headers, callback: Function) {
@@ -143,50 +152,51 @@ class SSDP extends EventEmitter {
     this.notify(headers, callback);
   }
 
-  search(headers: Headers, callback: Function) {
+  search(headers: Headers, callback: Function) { // requires an ST: search target 'urn:dial-multiscreen-org:service:dial:1'
     debug('search');
     // prep headers
     headers.HOST = headers.HOST || SSDP_HOST;
     headers.MAN  = DISCOVER;
-    headers.MX   = headers.MX || MX;
-    headers.USN  = headers.USN || self.UUID;
+    headers['USER-AGENT'] = headers['USER-AGENT'] || SERVER;
     for (let key in this.extraHeaders)
       headers[key] = this.extraHeaders[key];
 
     let msg = new Buffer(this._serialize(M_SEARCH, headers));
-    this.udpSocket.send(msg, 0, SSDP_PORT, SSDP_ADDRESS, callback);
+    this.unicastUdp.send(msg, 0, SSDP_PORT, SSDP_ADDRESS, callback);
   }
 
-  reply(headers: Headers, peer: Peer, callback: Function) {
+  reply(headers: Headers, peer: Peer, callback: Function) { // requires more thurough USN & ST & LOCATION
     debug('reply');
-    headers.HOST = headers.HOST || SSDP_HOST;
-    headers.EXT  = headers.EXT || '';
+    headers.HOST   = headers.HOST || SSDP_HOST;
+    headers.EXT    = headers.EXT || '';
+    headers.SERVER = headers.SERVER || SERVER;
+    headers.USN    = headers.USN || self.UUID;
     headers['CACHE-CONTROL'] = headers['CACHE-CONTROL'] || MAX_AGE;
     // headers['SEARCHPORT.UPNP.ORG'] = headers['SEARCHPORT.UPNP.ORG'] || SSDP_PORT; // optional (1900 default) - ports allowed 49152-65535
 
     const msg = new Buffer(this._serialize(OK, headers));
-    this.udpSocket.send(msg, 0, peer.port, peer.address, callback);
+    this.unicastUdp.send(msg, 0, peer.port, peer.address, callback);
   }
 
   _onMessage(message: string, peer: { address: string, port: number }) {
     const { type, headers } = this._deserialize(message);
     debug('message - length: %d, type: %s', message.length, type);
-    self.emit('message', type, headers, peer);
+    this.emit(type, headers, peer);
   }
 
   _onListening() {
     debug('listening');
-    self.emit('listening');
+    this.emit('listening');
   }
 
   _onError(err) {
     debug('Error:  %o', err);
-    self.emit('err', err);
+    this.emit('err', err);
   }
 
   _onClose(err) {
     debug('Close error:  %o', err);
-    self.emit('close', err);
+    this.emit('close', err);
   }
 
   _serialize(type: Type, headers: Headers): string {
@@ -218,7 +228,7 @@ class SSDP extends EventEmitter {
     lines.forEach(line => {
       line = line.trim().split(': ');
       if (line.length && line.length >= 2)
-        headers[line[0]] = headers[line[1]];
+        headers[line[0].toUpperCase()] = line[1];
     });
 
     return {type, headers};
