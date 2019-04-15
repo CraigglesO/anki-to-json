@@ -10,15 +10,15 @@ const debug = require('debug')('SSDP');
 const db    = new Datastore({ filename: './ssdp.db', autoload: true });
 
 // UPnP STANDARD VARIABLES
-const SSDP_ADDRESS   = '239.255.255.250';
-const SSDP_PORT      = 1900;
-const SSDP_HOST      = SSDP_ADDRESS + ':' + SSDP_PORT;
-const TTL            = 2;
-const MX             = 2;
-const ALIVE_INTERVAL = 1800 * 1000; // 30 minutes
-const MAX_AGE        = 'max-age=1800';
-const LOCAL_IP       = address();
-const SERVER         = os.type() + '/' + os.release() + ' UPnP/1.1 kami/1.0.0';
+const SSDP_ADDRESS    = '239.255.255.250';
+const SSDP_PORT       = 1900;
+const SSDP_HOST       = SSDP_ADDRESS + ':' + SSDP_PORT;
+const TTL             = 2;
+const MX              = 2;
+const ALIVE_INTERVAL  = 1800 * 1000; // 30 minutes
+const MAX_AGE         = 'max-age=1800';
+const SERVER          = os.type() + '/' + os.release() + ' UPnP/1.1 kami/1.0.0';
+export const LOCAL_IP = address();
 
 // START LINES
 const NOTIFY   = 'NOTIFY * HTTP/1.1\r\n';
@@ -30,9 +30,6 @@ const ALIVE    = 'ssdp:alive';
 const BYEBYE   = 'ssdp:byebye';
 const UPDATE   = 'ssdp:update';
 const DISCOVER = '"ssdp:discover"';
-
-// SERVER message header
-const SERVER = os.type() + '/' + os.release() + ' UPnP/1.1 kami/1.0';
 
 export type Type = 'NOTIFY' | 'M_SEARCH' | 'OK';
 
@@ -171,10 +168,10 @@ class SSDP extends EventEmitter {
     this.udpSocket.send(msg, 0, peer.port, peer.address, callback);
   }
 
-  _onMessage(message: string, address: string) {
+  _onMessage(message: string, peer: { address: string, port: number }) {
     const { type, headers } = this._deserialize(message);
     debug('message - length: %d, type: %s', message.length, type);
-    self.emit('message', type, headers, address);
+    self.emit('message', type, headers, peer);
   }
 
   _onListening() {
