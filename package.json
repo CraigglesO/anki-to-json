@@ -1,5 +1,5 @@
 {
-  "name": "@iftt/skeleton-module",
+  "name": "simple-service-discovery-protocol",
   "version": "1.0.0",
   "description": "When creating new NodeJS modules, use this skeletal structure",
   "main": "lib/index.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iftt/skeleton-module.git"
+    "url": "https://github.com/CraigglesO/simple-service-discovery-protocol.git"
   },
   "author": "Craig OConnor",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/IFTT/skeleton-module/issues"
+    "url": "https://github.com/CraigglesO/simple-service-discovery-protocol/issues"
   },
-  "homepage": "https://github.com/IFTT/skeleton-module#readme",
+  "homepage": "https://github.com/CraigglesO/simple-service-discovery-protocol#readme",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
@@ -28,7 +28,12 @@
     "@babel/preset-flow": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^4.0.0",
+    "express": "^4.16.4",
     "flow-bin": "^0.48.0",
     "tape": "^4.6.3"
+  },
+  "dependencies": {
+    "nedb": "^1.8.0",
+    "uuid": "^3.3.2"
   }
 }
