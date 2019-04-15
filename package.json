@@ -1,6 +1,6 @@
 {
   "name": "simple-service-discovery-protocol",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "When creating new NodeJS modules, use this skeletal structure",
   "main": "lib/index.js",
   "scripts": {
