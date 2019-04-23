@@ -9,11 +9,22 @@
 
 ## About
 
+**Create new modules with this skeleton**
+
+```sh
+# grab the package
+git clone https://github.com/IFTT/skeleton-module.git
+# remove the origin
+git remote rm origin
+# download the dependencies
+yarn
+```
+
 ---
 
 ## ISC License (ISC)
 
-Copyright 2019 <CraigglesO>
+Copyright 2019 <IFTT>
 Copyright (c) 2004-2010 by Internet Systems Consortium, Inc. ("ISC")
 Copyright (c) 1995-2003 by Internet Software Consortium
 
