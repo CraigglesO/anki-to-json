@@ -1,11 +1,11 @@
-# skeleton-module [![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![downloads][downloads-image]][downloads-url] [![Greenkeeper badge](https://badges.greenkeeper.io/IFTT/skeleton-module.svg)](https://greenkeeper.io/)
+# skeleton-module [![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![downloads][downloads-image]][downloads-url] [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-[travis-image]: https://travis-ci.org/IFTT/skeleton-module.svg?branch=master
-[travis-url]: https://travis-ci.org/IFTT/skeleton-module
+[travis-image]: https://travis-ci.org/iftt/skeleton-module.svg?branch=master
+[travis-url]: https://travis-ci.org/iftt/skeleton-module
 [npm-image]: https://img.shields.io/npm/v/@iftt/skeleton-module.svg
 [npm-url]: https://npmjs.org/package/@iftt/skeleton-module
 [downloads-image]: https://img.shields.io/npm/dm/@iftt/skeleton-module.svg
-[downloads-url]: https://npmjs.org/package/@iftt/skeleton-module
+[downloads-url]: https://www.npmjs.com/package/@iftt/skeleton-module
 
 ## About
 

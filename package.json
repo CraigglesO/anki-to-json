@@ -1,14 +1,14 @@
 {
   "name": "@iftt/skeleton-module",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "When creating new NodeJS modules, use this skeletal structure",
   "main": "lib/index.js",
   "scripts": {
     "lint+build+test": "yarn run lint && yarn run build && yarn run test",
-    "lint": "echo linting... && eslint ./src/**/*.js && echo 'successfully linted'",
+    "lint": "echo linting... && standard ./src/**/*.js && echo 'successfully linted'",
     "build": "echo building... && babel src/ -d lib/ && echo 'successfully built'",
     "prepublish": "yarn run build",
-    "test": "echo running server tests... && tape test/**/*.js | tap-summary && echo 'successfully completed tests'"
+    "test": "echo running server tests... && standard && tape test/**/*.js | tap-summary && echo 'successfully completed tests'"
   },
   "repository": {
     "type": "git",
@@ -21,14 +21,24 @@
   },
   "homepage": "https://github.com/IFTT/skeleton-module#readme",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.2.2",
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
     "@babel/plugin-syntax-flow": "^7.2.0",
-    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-env": "^7.4.3",
     "@babel/preset-flow": "^7.0.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^4.0.0",
-    "flow-bin": "^0.48.0",
-    "tape": "^4.6.3"
+    "core-js": "3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-flowtype": "^3.6.1",
+    "flow-bin": "^0.97.0",
+    "standard": "*",
+    "tape": "^4.10.1",
+    "yarn-upgrade-all": "^0.5.0"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "plugins": [
+      "flowtype"
+    ]
   }
 }
