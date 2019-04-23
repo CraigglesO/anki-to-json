@@ -32,6 +32,7 @@
     "eslint-plugin-flowtype": "^3.6.1",
     "flow-bin": "^0.97.0",
     "standard": "*",
+    "tap-summary": "^4.0.0",
     "tape": "^4.10.1",
     "yarn-upgrade-all": "^0.5.0"
   },
