@@ -1,8 +1,11 @@
 {
-  "name": "@iftt/skeleton-module",
-  "version": "2.0.0",
-  "description": "When creating new NodeJS modules, use this skeletal structure",
+  "name": "anki-to-json",
+  "version": "1.0.0",
+  "description": "Convert anki file to a folder containing all media and a JSON for each note.",
   "main": "lib/index.js",
+  "bin": {
+    "ankiToJson": "bin/index.js"
+  },
   "scripts": {
     "lint+build+test": "yarn run lint && yarn run build && yarn run test",
     "lint": "echo linting... && standard ./src/**/*.js && echo 'successfully linted'",
@@ -12,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iftt/skeleton-module.git"
+    "url": "https://github.com/CraigglesO/anki-to-json.git"
   },
   "author": "Craig OConnor",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/iftt/skeleton-module/issues"
+    "url": "https://github.com/CraigglesO/anki-to-json/issues"
   },
-  "homepage": "https://github.com/iftt/skeleton-module#readme",
+  "homepage": "https://github.com/CraigglesO/anki-to-json#readme",
   "devDependencies": {
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
@@ -41,5 +44,12 @@
     "plugins": [
       "flowtype"
     ]
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "node-zip": "^1.1.1",
+    "sql.js": "^1.0.0",
+    "sqlite3": "^4.0.6",
+    "strip-ansi": "^5.2.0"
   }
 }
