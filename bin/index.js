@@ -5,11 +5,11 @@ const chalk = require('chalk')
 
 const processLength = process.argv.length
 
-if (processLength < 2 || process.argv[1] === '-h' || process.argv[1] === '--help') return prettyPrint()
+if (processLength < 3 || process.argv[2] === '-h' || process.argv[2] === '--help') return prettyPrint()
 
-const inputFile = process.argv[1]
+const inputFile = process.argv[2]
 let outputDir = null
-if (processLength >= 3) outputDir = process.argv[2]
+if (processLength >= 4) outputDir = process.argv[3]
 
 ankiToJson(inputFile, outputDir)
 
