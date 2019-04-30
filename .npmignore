@@ -1,3 +1,4 @@
 src
 test
-test/testDeck.apkg
+templates
+.DS_Store
