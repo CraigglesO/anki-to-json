@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const ankiToJson = require('../lib')
+const ankiToJson = require('../lib').default
 const chalk = require('chalk')
 
 const processLength = process.argv.length
