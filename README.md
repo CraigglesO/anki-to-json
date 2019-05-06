@@ -9,7 +9,42 @@
 
 ## About
 
+[Anki](https://apps.ankiweb.net/) decks are great, but what if you want to use another system, or you just want access to the data with proper links to the images and audio.
 
+This module will extract all Anki deck data for you into a folder. Front and back data will be put into a JSON with links to audio and images. Assuming media exists, it will be placed into a media subfolder.
+
+
+# How to install
+```sh
+# NPM
+npm install --save anki-to-json
+# Yarn
+yarn add anki-to-json
+
+# GLOBAL
+
+# NPM
+npm install -g anki-to-json
+# YARN
+yarn global add anki-to-json
+```
+
+# How to use
+
+## Bin
+```sh
+ankiToJson jp_core_2000_1.apkg
+```
+
+## NodeJS
+```js
+// ES6
+import ankiToJson from 'anki-to-json'
+// ES5
+const ankiToJson = require('anki-to-json').default
+
+ankiToJson(inputFile, outputDir)
+```
 
 ---
 
