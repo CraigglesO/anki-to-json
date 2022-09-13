@@ -2,3 +2,4 @@ node_modules
 lib
 test/testDeck.apkg
 .DS_Store
+test.js

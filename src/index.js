@@ -6,17 +6,17 @@ import sqlite3 from 'sqlite3'
 // TWO: go through media and move each numeric file, renamed
 // THREE: Open the sql database, go through each note
 
-function ankiToJson (inputFile: string, outputDir?: string) {
+export default function ankiToJson (inputFile: string, outputDir?: string) {
   if (!inputFile) { return new Error('inputFile required') }
-  let name: string = inputFile.split('/').pop().split('.')[0]
-  let dir: string = (outputDir) ? outputDir : './' + name
+  const name: string = inputFile.split('/').pop().split('.')[0]
+  const dir: string = (outputDir !== undefined) ? outputDir : './' + name
 
   if (!fs.existsSync(dir)) { fs.mkdirSync(dir) }
   if (!fs.existsSync(dir + '/media')) { fs.mkdirSync(dir + '/media') }
   const zip: Zip = new Zip(fs.readFileSync(inputFile), { base64: false, checkCRC32: true })
-  let media: Object = JSON.parse(zip.files['media']._data)
-  for (let key in zip.files) {
-    let file = zip.files[key]
+  const media: Object = JSON.parse(zip.files.media._data)
+  for (const key in zip.files) {
+    const file = zip.files[key]
     if (!isNaN(file.name)) {
       fs.writeFileSync(dir + '/media/' + media[file.name], file._data, { encoding: 'binary' })
     } else if (file.name === 'collection.anki2') {
@@ -31,19 +31,19 @@ function ankiToJson (inputFile: string, outputDir?: string) {
     if (err) { return console.log('ERROR', err) }
     notes = notes.map(note => {
       note.media = []
-      note.front = note.sfld.replace(/\u001f/g, '\n').replace('<div>', '\n').replace('<br>', '\n').replace(/<(?:.|\n)*?>/gm, '')
-      note.back = note.flds.replace(/\u001f/g, '\n').replace('<div>', '\n').replace('<br>', '\n').replace(/<(?:.|\n)*?>/gm, '')
-      let openBracketIndexes = []
-      let closedBracketIndexes = []
+      note.front = note.sfld.replaceAll('\u001F', '\n').replaceAll('<div>', '\n').replaceAll('<br>', '\n').replace(/<(?:.|\n)*?>/gm, '')
+      note.back = note.flds.replaceAll('\u001F', '\n').replaceAll('<div>', '\n').replaceAll('<br>', '\n').replace(/<(?:.|\n)*?>/gm, '')
+      const openBracketIndexes = []
+      const closedBracketIndexes = []
       // FRONT
       for (let i = 0; i < note.front.length; i++) {
         if (note.front[i] === '[') { openBracketIndexes.push(i) }
         if (note.front[i] === ']') { closedBracketIndexes.push(i) }
       }
       while (openBracketIndexes.length) {
-        let start = openBracketIndexes.shift()
-        let end = closedBracketIndexes.shift()
-        let bracketString = note.front.slice(start + 1, end)
+        const start = openBracketIndexes.shift()
+        const end = closedBracketIndexes.shift()
+        const bracketString = note.front.slice(start + 1, end)
         if (bracketString.includes(':')) {
           note.media.push(bracketString.split(':')[1])
           note.front = note.front.slice(0, start) + note.front.slice(end + 1)
@@ -55,9 +55,9 @@ function ankiToJson (inputFile: string, outputDir?: string) {
         if (note.back[i] === ']') { closedBracketIndexes.push(i) }
       }
       while (openBracketIndexes.length) {
-        let start = openBracketIndexes.shift()
-        let end = closedBracketIndexes.shift()
-        let bracketString = note.back.slice(start + 1, end)
+        const start = openBracketIndexes.shift()
+        const end = closedBracketIndexes.shift()
+        const bracketString = note.back.slice(start + 1, end)
         if (bracketString.includes(':')) {
           note.media.push(bracketString.split(':')[1])
           note.back = note.back.slice(0, start) + note.back.slice(end + 1)
@@ -67,10 +67,11 @@ function ankiToJson (inputFile: string, outputDir?: string) {
       // LASTLY ensure no dublicates, remove access words, if the word does not exist, remove entry
       // <img src=\"
       // IMAGES
-      let images = indexesOf('<img', note.flds)
+      const images = indexesOf('<img', note.flds)
       images.forEach(imageIndex => {
-        let imageSrc = note.flds.slice(imageIndex + 11).split('"')[0]
-        note.media.push(imageSrc)
+        const imageStr = note.flds.slice(imageIndex)
+        const innerQuotes = imageStr.match(/"([^"]*)"/)[1]
+        note.media.push(innerQuotes)
       })
       note.media = [...new Set(note.media)]
       note.front = note.front.trim()
@@ -87,11 +88,11 @@ function ankiToJson (inputFile: string, outputDir?: string) {
 }
 
 function indexesOf (searchStr, str, caseSensitive) {
-  let searchStrLen = searchStr.length
+  const searchStrLen = searchStr.length
   if (searchStrLen === 0) return []
   let startIndex = 0
   let index
-  let indices = []
+  const indices = []
   if (!caseSensitive) {
     str = str.toLowerCase()
     searchStr = searchStr.toLowerCase()
@@ -102,5 +103,3 @@ function indexesOf (searchStr, str, caseSensitive) {
   }
   return indices
 }
-
-export default ankiToJson
