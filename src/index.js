@@ -43,11 +43,16 @@ export default function ankiToJson (inputFile: string, outputDir?: string) {
       while (openBracketIndexes.length) {
         const start = openBracketIndexes.shift()
         const end = closedBracketIndexes.shift()
+		const length = end - start;
         const bracketString = note.front.slice(start + 1, end)
         if (bracketString.includes(':')) {
           note.media.push(bracketString.split(':')[1])
           note.front = note.front.slice(0, start) + note.front.slice(end + 1)
-        }
+		  if(openBracketIndexes.length > 0 && closedBracketIndexes.length > 0){
+			openBracketIndexes[0] -= length+1
+			closedBracketIndexes[0] -= length+1
+		  }
+		}
       }
       // BACK
       for (let i = 0; i < note.back.length; i++) {
@@ -57,10 +62,15 @@ export default function ankiToJson (inputFile: string, outputDir?: string) {
       while (openBracketIndexes.length) {
         const start = openBracketIndexes.shift()
         const end = closedBracketIndexes.shift()
+		const length = end - start;
         const bracketString = note.back.slice(start + 1, end)
         if (bracketString.includes(':')) {
           note.media.push(bracketString.split(':')[1])
           note.back = note.back.slice(0, start) + note.back.slice(end + 1)
+		  if(openBracketIndexes.length > 0 && closedBracketIndexes.length > 0){
+			openBracketIndexes[0] -= length+1
+			closedBracketIndexes[0] -= length+1
+		  }
         }
       }
       // TODO: images, items, sentences
