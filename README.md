@@ -33,7 +33,7 @@ yarn global add anki-to-json
 
 ## Bin
 ```sh
-ankiToJson jp_core_2000_1.apkg
+ankiToJson jp_core_2000_1.apkg output_directory
 ```
 
 ## NodeJS
