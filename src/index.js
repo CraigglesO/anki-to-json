@@ -9,7 +9,7 @@ import sqlite3 from 'sqlite3'
 export default function ankiToJson (inputFile: string, outputDir?: string) {
   if (!inputFile) { return new Error('inputFile required') }
   const name: string = inputFile.split('/').pop().split('.')[0]
-  const dir: string = (outputDir !== undefined) ? outputDir : './' + name
+  const dir: string = (outputDir !== undefined && outputDir !== null) ? outputDir : './' + name
 
   if (!fs.existsSync(dir)) { fs.mkdirSync(dir) }
   if (!fs.existsSync(dir + '/media')) { fs.mkdirSync(dir + '/media') }
